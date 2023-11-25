@@ -3,10 +3,10 @@
 /*
 Pins for connection
 */
-#define DATA 1
-#define CLK 2
-#define LATCH 3
-#define R_PIN 4
+#define DATA 11
+#define CLK 12
+#define LATCH 8
+#define R_PIN 9
 
 #define FLIPPED_OUTPUTS //pins are NC
 
@@ -23,8 +23,10 @@ WARNING:Bigger number solows down code
 #define MAX_ON_PINS 50
 
 //On time for each output in ms
-int ON_TIME = 2000;  
+int ON_TIME = 500;  
 
+//number of outputs
+#define OUTPUTS 32
 
 /*
 Get data from controller
@@ -35,7 +37,7 @@ Update outputs
 int TimerArr_time[MAX_ON_PINS]; //array for storing ticks before switching off
 int TimerArr_pin[MAX_ON_PINS];  //array for storing what pin is connected to a timer
 
-int PortLength = 8;
+int PortLength = OUTPUTS;
 unsigned long old_time;
 
  /*
@@ -60,13 +62,41 @@ void setup() {
 
 void loop() {
   //InputRead();
+  for (int i = 0; i < PortLength; i++){
+  SetPinOn(i);
+  for(int j =0; j < 10; j++){
   updateOutputs();
   old_time = millis();
   delay(100);
+  }
+  Serial.println("");
+ }
+
 }
 
 
 
+
+
+void SetPinOn(int pin,int onTime = ON_TIME){
+ if (pin == 0) {return;}
+
+ for (int i = 0; i < MAX_ON_PINS; i++) {
+    /*
+    *  If you find pin reset timer,
+    *  else find empty spot and update it
+    */
+    if (TimerArr_pin[i] == pin){
+     TimerArr_time[i] = onTime;
+     return;
+    }
+    else if (TimerArr_pin[i] == 0) {
+      TimerArr_time[i] = onTime;
+      TimerArr_pin[i] = pin;
+      return;
+    }
+  }
+}
 
 
 
@@ -86,7 +116,7 @@ bool TestOutput(int pin) {
     */
 
     if (TimerArr_pin[i] == pin) {
-      
+      deltaTime = (int)(millis() - old_time);
       TimerArr_time[i] -= deltaTime;
       if (TimerArr_time[i] <= 0) {
         TimerArr_pin[i] = 0;
@@ -105,29 +135,39 @@ void updateOutputs() {
   char outputbyte = 0;
   char addBit = 0;
 
-  digitalWrite(R_PIN,HIGH);
-  digitalWrite(R_PIN,LOW);
+  //digitalWrite(R_PIN,HIGH);
+  //digitalWrite(R_PIN,LOW);
 
-  for (int i = 1; i < PortLength+1; i++) {
+ 
+  for (int i = PortLength ; i > 0; i--) {
     addBit = TestOutput(i) ? 1 : 0;
     outputbyte = outputbyte << 1 + addBit;
 
-#ifdef DEBUG
-    Serial.print( (int) addBit);
-#endif
+
     
-    if (i-1 % 8 == 7) {
-      
+    if ( (i-1) % 8 == 7) {
+     
+#ifdef DEBUG
+    Serial.print(" ");
+    Serial.print(i);
+    Serial.print(": ");
+#endif
+     
 #ifdef FLIPPED_OUTPUTS
     outputbyte = outputbyte ^ 255;
 #endif
       
-      shiftOut(DATA, CLK, (FLIPPED_PORTS)? LSB:MSBFIRST, outputbyte);
+      shiftOut(DATA, CLK, (FLIPPED_PORTS)? LSBFIRST:MSBFIRST, outputbyte);
 
       outputbyte = 0;
     }
+#ifdef DEBUG
+    Serial.print(addBit, BIN);
+#endif
   }
   digitalWrite(LATCH,LOW);
   digitalWrite(LATCH,HIGH);
-  Serial.println("");
+ #ifdef DEBUG
+    Serial.println("");
+#endif
 }
