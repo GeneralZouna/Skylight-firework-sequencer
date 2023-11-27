@@ -14,7 +14,7 @@ Pins for connection
 Set true if every board is flipped by pins:
 Q7 is first LSB; Q1 is MSB
 */
-#define FLIPPED_PORTS true  
+#define FLIPPED_PORTS
 
 /*
 Number of pins that may be on at one time
@@ -26,7 +26,7 @@ WARNING:Bigger number solows down code
 int ON_TIME = 500;  
 
 //number of outputs
-#define OUTPUTS 32
+#define OUTPUTS 16
 
 /*
 Get data from controller
@@ -54,27 +54,22 @@ unsigned long old_time;
 
 
 
+  /*
+   * The connection of shift registers and pins is:
+   * arduino  -> shift register  ->    shift register  ->  ...
+   * pins:       1|2|3|4|5|6|7|8 -> 9|10|11|12|13|14|15|16
+   */
 
 void setup() {
   Serial.begin(9600);
-  
-}
+  pinMode(DATA,OUTPUT);
+  pinMode(CLK,OUTPUT);
+  pinMode(LATCH,OUTPUT);
+  pinMode(R_PIN, OUTPUT);
 
-void loop() {
-  //InputRead();
-  for (int i = 0; i < PortLength; i++){
-  SetPinOn(i);
-  for(int j =0; j < 10; j++){
-  updateOutputs();
-  old_time = millis();
-  delay(100);
-  }
-  Serial.println("");
- }
+  digitalWrite(R_PIN,HIGH);
 
 }
-
-
 
 
 
@@ -88,11 +83,20 @@ void SetPinOn(int pin,int onTime = ON_TIME){
     */
     if (TimerArr_pin[i] == pin){
      TimerArr_time[i] = onTime;
+#ifdef DEBUG
+      Serial.print("Updated on-time for pin ");
+      Serial.println(pin);
+#endif
+
      return;
     }
     else if (TimerArr_pin[i] == 0) {
       TimerArr_time[i] = onTime;
       TimerArr_pin[i] = pin;
+#ifdef DEBUG
+      Serial.print("Updated on-time for pin ");
+      Serial.println(pin);
+#endif
       return;
     }
   }
@@ -132,21 +136,21 @@ bool TestOutput(int pin) {
 
 
 void updateOutputs() {
-  char outputbyte = 0;
-  char addBit = 0;
-
+  unsigned char outputbyte;
+  unsigned char addBit;
+  int8_t byteCounter;
   //digitalWrite(R_PIN,HIGH);
   //digitalWrite(R_PIN,LOW);
 
- 
-  for (int i = PortLength ; i > 0; i--) {
+ //loop thru all the pins
+  for (int i = PortLength; i >0; i--) {
+    byteCounter ++;
     addBit = TestOutput(i) ? 1 : 0;
-    outputbyte = outputbyte << 1 + addBit;
-
+    outputbyte = (outputbyte << 1) + addBit;
 
     
-    if ( (i-1) % 8 == 7) {
-     
+    if ( (byteCounter) % 8 == 0) {
+     byteCounter = 0;
 #ifdef DEBUG
     Serial.print(" ");
     Serial.print(i);
@@ -156,18 +160,41 @@ void updateOutputs() {
 #ifdef FLIPPED_OUTPUTS
     outputbyte = outputbyte ^ 255;
 #endif
-      
-      shiftOut(DATA, CLK, (FLIPPED_PORTS)? LSBFIRST:MSBFIRST, outputbyte);
 
+#ifdef FLIPPED_PORTS
+      shiftOut(DATA, CLK, LSBFIRST, outputbyte);
+#else
+      shiftOut(DATA, CLK, MSBFIRST, outputbyte);
+#endif
+
+    Serial.print(" -> ");
+    Serial.print((byte)outputbyte, BIN);
+    Serial.print(" <- ");
       outputbyte = 0;
     }
 #ifdef DEBUG
     Serial.print(addBit, BIN);
 #endif
   }
-  digitalWrite(LATCH,LOW);
-  digitalWrite(LATCH,HIGH);
  #ifdef DEBUG
     Serial.println("");
 #endif
+  digitalWrite(LATCH,HIGH);
+  digitalWrite(LATCH,LOW);
+}
+
+
+void loop() {
+  //InputRead();
+  for (int i = 0; i < PortLength; i++){
+  SetPinOn(i+1);
+  SetPinOn(1);
+  for(int j =0; j < 10; j++){
+  updateOutputs();
+  old_time = millis();
+  delay(100);
+  }
+  Serial.println("");
+ }
+
 }
