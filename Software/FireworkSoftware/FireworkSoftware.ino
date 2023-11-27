@@ -1,20 +1,43 @@
 #define DEBUG
 
-#define DATA 1
-#define CLK 2
-#define LATCH 3
-#define R_PIN 4
+/*
+Pins for connection
+*/
+#define DATA 11
+#define CLK 12
+#define LATCH 8
+#define R_PIN 9
 
-#define MAX_ON_PINS 300 //bigger number solows down code
-int ON_TIME = 5000;  
-//Get data from controller
-//Read SD
-//Update outputs
+#define FLIPPED_OUTPUTS //pins are NC
 
-int TimerArr_time[MAX_ON_PINS];
-int TimerArr_pin[MAX_ON_PINS];
+/*
+Set true if every board is flipped by pins:
+Q7 is first LSB; Q1 is MSB
+*/
+#define FLIPPED_PORTS
 
-int PortLength = 8;
+/*
+Number of pins that may be on at one time
+WARNING:Bigger number solows down code
+*/
+#define MAX_ON_PINS 50
+
+//On time for each output in ms
+int ON_TIME = 500;  
+
+//number of outputs
+#define OUTPUTS 16
+
+/*
+Get data from controller
+Read SD
+Update outputs
+*/
+
+int TimerArr_time[MAX_ON_PINS]; //array for storing ticks before switching off
+int TimerArr_pin[MAX_ON_PINS];  //array for storing what pin is connected to a timer
+
+int PortLength = OUTPUTS;
 unsigned long old_time;
 
  /*
@@ -31,21 +54,53 @@ unsigned long old_time;
 
 
 
+  /*
+   * The connection of shift registers and pins is:
+   * arduino  -> shift register  ->    shift register  ->  ...
+   * pins:       1|2|3|4|5|6|7|8 -> 9|10|11|12|13|14|15|16
+   */
 
 void setup() {
   Serial.begin(9600);
-  
+  pinMode(DATA,OUTPUT);
+  pinMode(CLK,OUTPUT);
+  pinMode(LATCH,OUTPUT);
+  pinMode(R_PIN, OUTPUT);
+
+  digitalWrite(R_PIN,HIGH);
+
 }
 
-void loop() {
-  InputRead();
-  updateOutputs();
-  old_time = millis();
-  delay(1000);
+
+
+void SetPinOn(int pin,int onTime = ON_TIME){
+ if (pin == 0) {return;}
+
+ for (int i = 0; i < MAX_ON_PINS; i++) {
+    /*
+    *  If you find pin reset timer,
+    *  else find empty spot and update it
+    */
+    if (TimerArr_pin[i] == pin){
+     TimerArr_time[i] = onTime;
+#ifdef DEBUG
+      Serial.print("Updated on-time for pin ");
+      Serial.println(pin);
+#endif
+
+     return;
+    }
+    else if (TimerArr_pin[i] == 0) {
+      TimerArr_time[i] = onTime;
+      TimerArr_pin[i] = pin;
+#ifdef DEBUG
+      Serial.print("Updated on-time for pin ");
+      Serial.println(pin);
+#endif
+      return;
+    }
+  }
 }
-
-
-
 
 
 
@@ -65,7 +120,7 @@ bool TestOutput(int pin) {
     */
 
     if (TimerArr_pin[i] == pin) {
-      
+      deltaTime = (int)(millis() - old_time);
       TimerArr_time[i] -= deltaTime;
       if (TimerArr_time[i] <= 0) {
         TimerArr_pin[i] = 0;
@@ -81,28 +136,60 @@ bool TestOutput(int pin) {
 
 
 void updateOutputs() {
-  char outputbyte = 0;
-  char addBit = 0;
+  unsigned char outputbyte;
+  unsigned char addBit;
+  int8_t byteCounter;
+  //digitalWrite(R_PIN,HIGH);
+  //digitalWrite(R_PIN,LOW);
 
-  digitalWrite(R_PIN,HIGH);
-  digitalWrite(R_PIN,LOW);
-
-  for (int i = 1; i < PortLength+1; i++) {
+ //loop thru all the pins
+  for (int i = PortLength; i >0; i--) {
+    byteCounter ++;
     addBit = TestOutput(i) ? 1 : 0;
-    outputbyte = outputbyte << 1 + addBit;
+    outputbyte = (outputbyte << 1) + addBit;
 
+    
+    if ( (byteCounter) % 8 == 0) {
+     byteCounter = 0;
 #ifdef DEBUG
-    Serial.print( (int) addBit);
+    Serial.print(" ");
+    Serial.print(i);
+    Serial.print(": ");
+#endif
+     
+#ifdef FLIPPED_OUTPUTS
+    outputbyte = outputbyte ^ 255;
 #endif
 
-    if (i-1 % 8 == 7) {
+#ifdef FLIPPED_PORTS
+      shiftOut(DATA, CLK, LSBFIRST, outputbyte);
+#else
       shiftOut(DATA, CLK, MSBFIRST, outputbyte);
+#endif
 
-
+    Serial.print(" -> ");
+    Serial.print((byte)outputbyte, BIN);
+    Serial.print(" <- ");
       outputbyte = 0;
     }
+#ifdef DEBUG
+    Serial.print(addBit, BIN);
+#endif
   }
-  digitalWrite(LATCH,LOW);
+ #ifdef DEBUG
+    Serial.println("");
+#endif
   digitalWrite(LATCH,HIGH);
-  Serial.println("");
+  digitalWrite(LATCH,LOW);
+}
+
+
+
+
+}
+void loop() {
+  InputRead();
+  updateOutputs();
+  old_time = millis();
+  delay(1000);
 }
