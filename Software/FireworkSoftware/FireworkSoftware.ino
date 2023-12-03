@@ -208,7 +208,6 @@ void setup() {
   Serial.println("HTTP server started");
 }
 
-}
 void loop() {
   if(ProgramActive){Start_launch();}
   server.handleClient();
