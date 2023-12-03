@@ -1,3 +1,7 @@
+#include <ESP8266WiFi.h>
+#include <WiFiClient.h>
+#include <ESP8266WebServer.h>
+
 #define DEBUG
 
 /*
@@ -40,6 +44,12 @@ int TimerArr_pin[MAX_ON_PINS];  //array for storing what pin is connected to a t
 int PortLength = OUTPUTS;
 unsigned long old_time;
 
+bool ProgramActive  = false;
+
+#ifndef APSSID
+#define APSSID "Firework Control"
+//#define APPSK "password"
+#endif
  /*
   *   Input commands:
   *
@@ -59,20 +69,6 @@ unsigned long old_time;
    * arduino  -> shift register  ->    shift register  ->  ...
    * pins:       1|2|3|4|5|6|7|8 -> 9|10|11|12|13|14|15|16
    */
-
-void setup() {
-  Serial.begin(9600);
-  pinMode(DATA,OUTPUT);
-  pinMode(CLK,OUTPUT);
-  pinMode(LATCH,OUTPUT);
-  pinMode(R_PIN, OUTPUT);
-
-  digitalWrite(R_PIN,HIGH);
-
-}
-
-
-
 void SetPinOn(int pin,int onTime = ON_TIME){
  if (pin == 0) {return;}
 
@@ -104,8 +100,8 @@ void SetPinOn(int pin,int onTime = ON_TIME){
 
 
 
-bool TestOutput(int pin) {
-  int deltaTime = (int)(millis() - old_time);
+bool TestOutput(int pin,int deltaTime = (int)(millis() - old_time)) {
+  //int deltaTime = (int)(millis() - old_time);
   // pin 0 doesn't exist --> code for empty
   if (pin == 0) {
     return false;
@@ -139,13 +135,14 @@ void updateOutputs() {
   unsigned char outputbyte;
   unsigned char addBit;
   int8_t byteCounter;
+  int deltaTime = (int)(millis() - old_time) + (MAX_ON_PINS*OUTPUTS/10);
   //digitalWrite(R_PIN,HIGH);
   //digitalWrite(R_PIN,LOW);
 
  //loop thru all the pins
   for (int i = PortLength; i >0; i--) {
     byteCounter ++;
-    addBit = TestOutput(i) ? 1 : 0;
+    addBit = TestOutput(i,deltaTime) ? 1 : 0;
     outputbyte = (outputbyte << 1) + addBit;
 
     
@@ -184,12 +181,33 @@ void updateOutputs() {
 }
 
 
+void setup() {
+  Serial.begin(115200);
+  pinMode(DATA,OUTPUT);
+  pinMode(CLK,OUTPUT);
+  pinMode(LATCH,OUTPUT);
+  pinMode(R_PIN, OUTPUT);
 
+  digitalWrite(R_PIN,HIGH);
+  updateOutputs();
+ 
+ //wifi Setup
+  WiFi.softAP(ssid);//, password);
+
+  IPAddress myIP = WiFi.softAPIP();
+  Serial.print("AP IP address: ");
+  Serial.println(myIP);
+  server.on("/", handleRoot);
+  server.on("/start", handleStart);
+  server.begin();
+  Serial.println("HTTP server started");
+}
 
 }
 void loop() {
-  InputRead();
+  if(ProgramActive){Start_launch();}
+  server.handleClient();
   updateOutputs();
   old_time = millis();
-  delay(1000);
+  delay(50);
 }
