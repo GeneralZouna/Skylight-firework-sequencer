@@ -32,6 +32,12 @@ int ON_TIME = 500;
 //number of outputs
 #define OUTPUTS 16
 
+
+#ifndef APSSID
+#define APSSID "Firework Control"
+#define APPSK "" //password"
+#endif
+
 /*
 Get data from controller
 Read SD
@@ -45,11 +51,6 @@ int PortLength = OUTPUTS;
 unsigned long old_time;
 
 bool ProgramActive  = false;
-
-#ifndef APSSID
-#define APSSID "Firework Control"
-#define APPSK "" //password"
-#endif
 
 const char *ssid = APSSID;
 const char *password = APPSK;
