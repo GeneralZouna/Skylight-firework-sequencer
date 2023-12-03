@@ -48,8 +48,13 @@ bool ProgramActive  = false;
 
 #ifndef APSSID
 #define APSSID "Firework Control"
-//#define APPSK "password"
+#define APPSK "" //password"
 #endif
+
+const char *ssid = APSSID;
+const char *password = APPSK;
+
+ESP8266WebServer server(80);
  /*
   *   Input commands:
   *
@@ -192,7 +197,7 @@ void setup() {
   updateOutputs();
  
  //wifi Setup
-  WiFi.softAP(ssid);//, password);
+  WiFi.softAP(ssid, password);
 
   IPAddress myIP = WiFi.softAPIP();
   Serial.print("AP IP address: ");
