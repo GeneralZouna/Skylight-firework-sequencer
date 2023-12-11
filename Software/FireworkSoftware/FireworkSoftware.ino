@@ -106,8 +106,7 @@ void SetPinOn(int pin,int onTime = ON_TIME){
 
 
 
-bool TestOutput(int pin,int deltaTime = (int)(millis() - old_time)) {
-  //int deltaTime = (int)(millis() - old_time);
+bool TestOutput(int pin) {
   // pin 0 doesn't exist --> code for empty
   if (pin == 0) {
     return false;
@@ -122,13 +121,6 @@ bool TestOutput(int pin,int deltaTime = (int)(millis() - old_time)) {
     */
 
     if (TimerArr_pin[i] == pin) {
-      deltaTime = (int)(millis() - old_time);
-      TimerArr_time[i] -= deltaTime;
-      if (TimerArr_time[i] <= 0) {
-        TimerArr_pin[i] = 0;
-        TimerArr_time[i] = 0;
-        return false;
-      }
       return true;
     }
   }
@@ -136,19 +128,30 @@ bool TestOutput(int pin,int deltaTime = (int)(millis() - old_time)) {
   return false;
 }
 
+void updateTimers(int deltaTime = (int)(millis() - old_time)){
+  old_time = millis();
+  for (int i = 0; i < MAX_ON_PINS; i++) {
+    if (TimerArr_pin[i]) {
+      TimerArr_time[i] -= deltaTime;
+      if (TimeArr_time[i] <= 0){
+        TimerArr_time[i] = 0;
+        TimerArr_pin[i] = 0;
+      }
+    }
+  }
+}
 
 void updateOutputs() {
   unsigned char outputbyte;
   unsigned char addBit;
   int8_t byteCounter;
-  int deltaTime = (int)(millis() - old_time) + (MAX_ON_PINS*OUTPUTS/10);
+  updateTimers();
   //digitalWrite(R_PIN,HIGH);
   //digitalWrite(R_PIN,LOW);
-
  //loop thru all the pins
   for (int i = PortLength; i >0; i--) {
     byteCounter ++;
-    addBit = TestOutput(i,deltaTime) ? 1 : 0;
+    addBit = TestOutput(i) ? 1 : 0;
     outputbyte = (outputbyte << 1) + addBit;
 
     
@@ -213,6 +216,5 @@ void loop() {
   if(ProgramActive){Start_launch();}
   server.handleClient();
   updateOutputs();
-  old_time = millis();
   delay(50);
 }
