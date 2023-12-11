@@ -133,7 +133,7 @@ void updateTimers(int deltaTime = (int)(millis() - old_time)){
   for (int i = 0; i < MAX_ON_PINS; i++) {
     if (TimerArr_pin[i]) {
       TimerArr_time[i] -= deltaTime;
-      if (TimeArr_time[i] <= 0){
+      if (TimerArr_time[i] <= 0){
         TimerArr_time[i] = 0;
         TimerArr_pin[i] = 0;
       }
