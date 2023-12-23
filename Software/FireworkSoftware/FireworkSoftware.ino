@@ -167,9 +167,9 @@ void updateOutputs() {
 #endif
 
 #ifdef FLIPPED_PORTS
-      shiftOut(DATA, CLK, LSBFIRST, outputbyte);
+      shiftOut2(DATA, CLK, LSBFIRST, outputbyte);
 #else
-      shiftOut(DATA, CLK, MSBFIRST, outputbyte);
+      shiftOut2(DATA, CLK, MSBFIRST, outputbyte);
 #endif
 
 #ifdef DEBUG
