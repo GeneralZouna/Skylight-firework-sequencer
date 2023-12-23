@@ -1,8 +1,5 @@
-#include <ESP8266WiFi.h>
-#include <WiFiClient.h>
-#include <ESP8266WebServer.h>
-
-#define DEBUG
+//#define DEBUG
+#define DEBUG_A
 
 /*
 Pins for connection
@@ -27,16 +24,16 @@ WARNING:Bigger number solows down code
 #define MAX_ON_PINS 50
 
 //On time for each output in ms
-int ON_TIME = 500;  
+int ON_TIME = 2500;  
 
 //number of outputs
-#define OUTPUTS 16
+#define OUTPUTS 152
 
 
-#ifndef APSSID
-#define APSSID "Firework Control"
-#define APPSK "" //password"
-#endif
+//#define MASTER
+//#define SLAVE
+#define CTRL_PIN 5
+#define PORT_OFFSET 80
 
 /*
 Get data from controller
@@ -50,12 +47,8 @@ int TimerArr_pin[MAX_ON_PINS];  //array for storing what pin is connected to a t
 int PortLength = OUTPUTS;
 unsigned long old_time;
 
-bool ProgramActive  = false;
+bool ProgramActive  = true;
 
-const char *ssid = APSSID;
-const char *password = APPSK;
-
-ESP8266WebServer server(80);
  /*
   *   Input commands:
   *
@@ -85,9 +78,9 @@ void SetPinOn(int pin,int onTime = ON_TIME){
     */
     if (TimerArr_pin[i] == pin){
      TimerArr_time[i] = onTime;
-#ifdef DEBUG
+#ifdef DEBUG_A
       Serial.print("Updated on-time for pin ");
-      Serial.println(pin);
+      Serial.println(pin + PORT_OFFSET);
 #endif
 
      return;
@@ -95,9 +88,9 @@ void SetPinOn(int pin,int onTime = ON_TIME){
     else if (TimerArr_pin[i] == 0) {
       TimerArr_time[i] = onTime;
       TimerArr_pin[i] = pin;
-#ifdef DEBUG
+#ifdef DEBUG_A
       Serial.print("Updated on-time for pin ");
-      Serial.println(pin);
+      Serial.println(pin + PORT_OFFSET);
 #endif
       return;
     }
@@ -149,6 +142,10 @@ void updateOutputs() {
   //digitalWrite(R_PIN,HIGH);
   //digitalWrite(R_PIN,LOW);
  //loop thru all the pins
+    byteCounter =0;
+    addBit = 0;
+    outputbyte = 0;
+ 
   for (int i = PortLength; i >0; i--) {
     byteCounter ++;
     addBit = TestOutput(i) ? 1 : 0;
@@ -173,9 +170,11 @@ void updateOutputs() {
       shiftOut(DATA, CLK, MSBFIRST, outputbyte);
 #endif
 
+#ifdef DEBUG
     Serial.print(" -> ");
     Serial.print((byte)outputbyte, BIN);
     Serial.print(" <- ");
+#endif
       outputbyte = 0;
     }
 #ifdef DEBUG
@@ -191,7 +190,7 @@ void updateOutputs() {
 
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
   pinMode(DATA,OUTPUT);
   pinMode(CLK,OUTPUT);
   pinMode(LATCH,OUTPUT);
@@ -200,21 +199,28 @@ void setup() {
   digitalWrite(R_PIN,HIGH);
   updateOutputs();
  
- //wifi Setup
-  WiFi.softAP(ssid, password);
-
-  IPAddress myIP = WiFi.softAPIP();
-  Serial.print("AP IP address: ");
-  Serial.println(myIP);
-  server.on("/", handleRoot);
-  server.on("/start", handleStart);
-  server.begin();
-  Serial.println("HTTP server started");
+  #ifdef SLAVE
+    pinMode(CTRL_PIN, INPUT);
+  #endif
+  
+  #ifdef MASTER
+    pinMode(CTRL_PIN, OUTPUT);
+  #endif
+ 
 }
 
 void loop() {
-  if(ProgramActive){Start_launch();}
-  server.handleClient();
+#ifdef SLAVE
+   ProgramActive = (digitalRead(CTRL_PIN) == HIGH);
+#endif
+
+  if (ProgramActive) {
+#ifdef MASTER
+    digitalWrite(CTRL_PIN, HIGH);
+#endif
+    Start_launch();
+  }
+
   updateOutputs();
-  delay(50);
+ delay(10);
 }
