@@ -1,4 +1,4 @@
-void shiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, uint8_t val)
+void shiftOut2(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, uint8_t val)
 {
 	uint8_t i;
 
