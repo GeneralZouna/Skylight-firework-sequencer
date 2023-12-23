@@ -29,6 +29,8 @@ int ON_TIME = 2500;
 //number of outputs
 #define OUTPUTS 152
 
+//slows down clock of shift registers to make it more reliable
+#define SHIFT_DELAY 1
 
 //#define MASTER
 //#define SLAVE
