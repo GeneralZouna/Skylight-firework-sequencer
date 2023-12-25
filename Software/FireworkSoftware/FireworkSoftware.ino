@@ -32,9 +32,20 @@ int ON_TIME = 2500;
 //slows down clock of shift registers to make it more reliable
 #define SHIFT_DELAY 1
 
-//#define MASTER
-//#define SLAVE
-#define CTRL_PIN 5
+//defines the arduino as master over other controllers
+//#define MASTER 
+
+//defines the arduino as SLAVE in the chain of controllers
+#define SLAVE 
+
+//pin on which is responsible for control of the arduino
+#define CTRL_PIN 5  
+
+// offsest of pins
+/*if PORT_OFFSET is set to 80 it means
+* first output will be treated as 81th pin in the sequence
+* set to 0 if you want 1st pin to be 1
+*/
 #define PORT_OFFSET 80
 
 /*
