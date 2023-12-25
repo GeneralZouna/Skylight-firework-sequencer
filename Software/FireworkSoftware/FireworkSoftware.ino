@@ -41,12 +41,12 @@ int ON_TIME = 2500;
 //pin on which is responsible for control of the arduino
 #define CTRL_PIN 5  
 
-// offsest of pins
-/*
+/* offsest of pins
 * if PORT_OFFSET is set to 80 it means
 * first output will be treated as 81th pin in the sequence
 * set to 0 if you want 1st pin to be 1
 */
+
 #define PORT_OFFSET 80
 
 /*
