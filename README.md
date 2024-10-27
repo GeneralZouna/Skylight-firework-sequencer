@@ -4,6 +4,18 @@
 
 This is my simple firework sequencer based on ESP32 microcontrollers.
 
+# Setup
+1) Assemble master node by connecting 2 ESP32 modules:
+    pin 17 - pin 16
+    pin 16 - pin 16
+2) Flash Skylight program on one of them
+2.1) Upload the files in Skylight/data folder onto the ESP32 with LittleFS
+3) Flash Packet forwarder on second one
+4) Flash SkylightSlave on the relay board
+5) Connect to wifi "Skylight"
+6) Open website 192.168.4.1
+7) Have fun!
+
 Check back to see for documentation.
 
 For any help feel free to contact me
