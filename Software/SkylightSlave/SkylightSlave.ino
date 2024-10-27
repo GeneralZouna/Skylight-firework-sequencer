@@ -1,6 +1,7 @@
 #include <espnow.h>
 #include <ESP8266WiFi.h>
 
+//defining constants
 #define LATCH_pin 12 //LATCH pin on shift register
 #define DATA_pin 14  //DATA_in pin on shift register
 #define CLK_pin 13   //CLOCK pin on shift register
@@ -19,13 +20,11 @@ struct recived_message{
 recived_message Data;
 
 void UpdateOutput(){
-
    digitalWrite(LATCH_pin, LOW);
    for(int i = MAX_OUTPUT-1; i >= 0; i--){
       digitalWrite(CLK_pin,LOW);
       digitalWrite(DATA_pin, (millis() < pin_timeout[i]));
       digitalWrite(CLK_pin,HIGH);
-      
    }
    digitalWrite(LATCH_pin, HIGH);
    
