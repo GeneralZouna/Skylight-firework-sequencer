@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+	<head>
+		<meta charset="utf-8">
+		<title>You'll see the title</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<!-- Write your comments here 
+		<link rel="stylesheet" href="bootstrap.css">
+		-->
+		<link rel="stylesheet" href="picnic.min.css">
+		
+	</head>
+	
+<body style="padding:50px">
+		<nav>
+			<a class="brand" href="ControlPanel.html">
+				<span>Skylight v0</span>
+			</a>
+			
+			<input id="bmenub" type="checkbox" class="show">
+			<label for="bmenub" class="burger pseudo button">Menu</label>
+			
+			
+			<div class="menu">
+				<a class="pseudo button" href="ControlPanel.html">Control panel</a>
+				<a class="pseudo button" href="Settings.html">Settings</a>
+				<a class="pseudo button" href="Sequence.html">Sequence</a>
+				<a class="pseudo button" href="About.html">About</a>
+			</div>  
+		</nav>
+		<main>
+			<div>
+				<p><h1>Skylight v0</h1>
+				<span>Night looks bright tonight</span></p>
+				<h3></h3>
+			</div>
+			<div class="flex two">
+				<div><button id="StartBtn" type="button" class="sucess" onclick='{this.className = this.className = (this.innerText.includes("Stop") ? "success" : "error"); this.innerHTML = (this.innerText.includes("Run") ? "<h1>Stop</h1>" : "<h1>Run</h1>");setStartSequence();}'><h1>Run</h1></button></div>
+				
+				<div>
+					<p class="three">
+					<input id="SequenceIndex" type="number", step=1>
+					<button id="StartBtn" type="button" class="success" onclick='setSequenceIndex()'>Set Index</button>	</input>
+					</p>
+				</div>
+
+			</div>
+
+
+		
+		</main>
+		<script>
+			var SequenceIndex = 0;
+			var SequenceTable =[];
+			var Running = 0;
+
+			function setSequenceIndex(){
+				json = "[ " + document.getElementById("SequenceIndex").value + " ]"
+				var xhr = new XMLHttpRequest();
+				xhr.open("POST", "/api/SequenceIndex", true);
+				xhr.setRequestHeader("Content-type", "application/json");
+				xhr.send(json);
+				
+			}
+
+			function getSequenceIndex(callback){
+				var xhr = new XMLHttpRequest();
+				xhr.onload = function() {
+					var json;
+					json = JSON.parse(this.responseText)
+					callback(json[0])
+				};
+				xhr.open("GET", "/api/SequenceIndex");
+				xhr.send();
+			}
+
+			<!-------------------------------------------------------------->
+			function setStartSequence(){
+				var json = "[" + (document.getElementById("StartBtn").innerText.includes("Run") ? "0" : "1") + "]"
+				var xhr = new XMLHttpRequest();
+				xhr.open("POST", "/api/Start");
+				xhr.send(json);
+				
+			}
+
+			function getStartSequence(callback){
+				var xhr = new XMLHttpRequest();
+				xhr.onload = function() {
+					Running = JSON.parse(this.responseText)[0];
+					callback(Running)
+				}
+				xhr.open("GET", "/api/Start");
+				xhr.send();
+			}
+			<!-------------------------------------------------------------->
+			
+			function SetupCtrPanel(){
+				getStartSequence(function(running){
+				
+				let btn = document.getElementById("StartBtn");
+				btn.className = btn.className.replace("success", running ? "danger" : "success");
+				btn.innerText = (running ? "Stop" : "Run");
+				})
+				getSequenceIndex(function(e){document.getElementById("SequenceIndex").value = e});
+			}
+			
+			function updateSequenceIndex(){
+				if(document.getElementById("StartBtn").innerText == "Stop"){
+					getSequenceIndex(function(e){document.getElementById("SequenceIndex").value = e});
+				}
+			}
+			
+			setInterval(updateSequenceIndex, 250);
+			addEventListener("DOMContentLoaded",SetupCtrPanel);
+		</script>
+
+	</body>
+</html>
+

@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+	<head>
+		<meta charset="utf-8">
+		<title>You'll see the title</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<!-- Write your comments here 
+		<link rel="stylesheet" href="bootstrap.css">
+		-->
+		<link rel="stylesheet" href="picnic.min.css">
+		
+		<script> 
+			var SequenceIndex = 0;
+			var SequenceTable =[];
+			var Running = 0;
+			
+			function updateTableInexes(){
+				var table = document.getElementById("SequenceTable");
+				for(let i=0; i<table.childElementCount;i++){
+					table.children[i].children[0].innerText = i+1;
+				}
+			}
+			
+			<!-------------------------------------------------------------->
+			function setSequenceIndex(){
+				json = "[" + SequenceIndex + "]"
+				var xhr = new XMLHttpRequest();
+				xhr.open("POST", "/api/SequenceIndex", true);
+				xhr.setRequestHeader("Content-type", "application/json");
+				xhr.send(json);
+			}
+
+			function getSequenceIndex(){
+				var xhr = new XMLHttpRequest();
+				xhr.onload = function() {
+					var json;
+					json = JSON.parse(this)
+					SequenceIndex = json[0]
+				};
+				xhr.open("GET", "/api/SequenceIndex", true);
+				xhr.send();
+			}
+
+			<!-------------------------------------------------------------->
+			function setSequenceTable(json){
+				var xhr = new XMLHttpRequest();
+				xhr.onload = function(){
+					if(xhr.status == 200){
+						modal_1.click()
+					}else{
+						modal_2.click()
+					}
+				};
+				xhr.open("POST", "/api/SequenceTable", true);
+				xhr.send(json);
+			}
+
+			function getSequenceTable(){
+				var xhr = new XMLHttpRequest();
+				xhr.onload = function() {
+					SequenceTable = JSON.parse(this)
+				};
+				xhr.open("GET", "/api/SequenceTable", false);
+				xhr.send();
+				SequenceTable = JSON.parse(xhr.responseText);
+				
+			}
+			<!-------------------------------------------------------------->
+			function setStartSequence(){
+				var json;
+				json = JSON.stringify(Running)
+				var xhr = new XMLHttpRequest();
+				xhr.open("POST", "/api/Start", true);
+				xhr.send(json);
+			}
+
+			function getStartSequence(){
+				var xhr = new XMLHttpRequest();
+				xhr.onload = function() {
+					Running = JSON.parse(this)[0]
+				};
+				xhr.open("GET", "/api/Start", true);
+				xhr.send();
+			}
+			<!-------------------------------------------------------------->
+			function UploadTable(){
+				let tempArr = []
+				a = document.getElementById("SequenceTable").children
+				Array.from(a).forEach((element) => {
+					name = element.children[1].children[0].value
+					box = 1* element.children[2].children[0].value
+					delay = 1000* element.children[3].children[0].value
+					output = 1* element.children[4].children[0].value
+					tempArr.push([name,box,delay,output])
+				})
+				console.log(tempArr)
+				
+				setSequenceTable(JSON.stringify(tempArr));
+			}
+			
+			function SetupSequenceTable(){
+				getSequenceTable()
+				document.getElementById("SequenceTable").replaceChildren();
+				for (i = 0; i<SequenceTable.length;i++){
+					NewRow()
+					let table = document.getElementById("SequenceTable").children;
+					table[i].children[1].children[0].value = SequenceTable[i][0];
+					table[i].children[2].children[0].value = SequenceTable[i][1];
+					table[i].children[3].children[0].value = SequenceTable[i][2];
+					table[i].children[4].children[0].value = SequenceTable[i][3];
+					
+				}
+				updateTableInexes()
+				console.log(SequenceTable);
+			}
+			addEventListener("DOMContentLoaded",SetupSequenceTable);
+		</script>
+		
+	</head>
+	
+<body style="padding:50px">
+		<nav>
+			<a class="brand" href="ControlPanel.html">
+				<span>Skylight v0</span>
+			</a>
+			
+			<input id="bmenub" type="checkbox" class="show">
+			<label for="bmenub" class="burger pseudo button">Menu</label>
+			
+			
+			<div class="menu">
+				<a class="pseudo button" href="ControlPanel.html">Control panel</a>
+				<a class="pseudo button" href="Settings.html">Settings</a>
+				<a class="pseudo button" href="Sequence.html">Sequence</a>
+				<a class="pseudo button" href="About.html">About</a>
+			</div>  
+		</nav>
+		
+		<main>
+
+			<div>
+				<p><h1>Skylight v0</h1>
+				<span>Night looks bright tonight</span></p>
+				<h3></h3>
+			</div>
+			<!-- Update Confirmation table =========================================== -->
+					<div class="modal">
+						<input id="modal_1" type="checkbox">
+						<label for="modal_1" class="overlay"></label>
+						<article>
+							<header>
+								<h3>Great success</h3>
+								<label for="modal_1" class="close">×</label>
+							</header>
+							<section class="content">
+								The table was updated, it is now safe to switch to Sequence tab
+							</section>
+							
+							<footer>
+								<label for="modal_1" class="button success">
+									Yess boss
+								</label>
+							</footer>
+						</article>
+					</div>
+					
+					<div class="modal">
+						<input id="modal_2" type="checkbox">
+						<label for="modal_2" class="overlay"></label>
+						<article>
+							<header>
+								<h3>Well fuck!</h3>
+								<label for="modal_2" class="close">×</label>
+							</header>
+							<section class="content">
+								<p>The table was not updated, for whatever fucking reason ¯\_(ツ)_/¯ </p>
+								<p>Try one of the following:</p>
+								<ul>
+								<li> Check your connection</li>
+								<li> Think what you did to endup here</li>
+								<li> Blame the guy who made this code</li>
+								<li> Blame Peter (we all know he is always to blame)</li>
+								</ul>
+							</section>
+							
+							<footer>
+								<a for="modal_2" class="button success">
+									Ohhh nooo... Anyway
+								</a>
+							</footer>
+						</article>
+					</div>
+			<div class="flex primary">
+				<!-- Flight tabel =========================================== -->
+				<table >
+					<thead>
+						<tr>
+							<th >#</th>
+							<th >Name</th>
+							<th >Box</th>
+							<th >Step after</th>
+							<th >Output No.</th>
+							<th class="burger">Remove line</th>
+						</tr>
+					</thead>
+					<tbody class="border" id="SequenceTable">
+						<!--- There is a table here that gets generated with Javascript --->
+					</tbody>
+				</table>
+				
+			</div>
+			
+			
+			<div>
+				<div style="float:right">
+					<button type="button" class="error" onclick="document.getElementById('SequenceTable').children[document.getElementById('SequenceTable').childElementCount-1].remove()">Remove</button>
+					<button type="button" class="btn btn-primary btn-lg" onclick="NewRow()">Add</button>
+				</div>
+				
+				<div>
+					<button type="button" onclick="UploadTable()">
+						Upload
+					</button>
+					<button type="button" onclick="SetupSequenceTable()">
+						Reload
+					</button>
+				</div>
+			</div>
+			
+			
+			<footer id="footer"> More coming soon</footer>
+		</main>
+		
+		
+		<script>
+			function NewRow(){
+				let boxes = ['Jure [1]', 'Domen [2]', 'Klemen [3]', 'Tilen [4]'];
+				let template = document.createElement('tr');
+				let innerHTML = "";
+				innerHTML = '<td>' + (document.getElementById("SequenceTable").childElementCount +1) + '</td><td><input type="text" value="Generic Effect"></td><td><select>';
+				
+				innerHTML += '<option  value=0>Undefined</option>';
+				for (let v = 0; v < boxes.length; v++){
+					innerHTML += '<option  value=' + (v+1) + '>' + boxes[v] + '</option>';
+				}
+				
+				innerHTML +='</select></td><td><input type="number" value="0" step=".05" class="form-control"></td><td><select>';
+				for (let v = 0; v <= 16; v++){
+					innerHTML += '<option value='+v+'>'+v+'</option>';
+				}
+				innerHTML += "</select></td>";
+				innerHTML += '<td><button type="button" class="error" onclick="this.parentNode.parentNode.remove();updateTableInexes()">X</button></td>'
+				template.innerHTML = innerHTML;
+				document.getElementById("SequenceTable").appendChild(template);
+
+			}
+		</script>
+	</body>
+</html>
+
