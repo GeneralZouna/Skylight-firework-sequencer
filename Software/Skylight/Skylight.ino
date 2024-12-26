@@ -39,10 +39,10 @@ bool SequenceRunning = false;
 ########################################################*/
 const uint8_t slaveNodes[20][6] = {
     {0xE8,0xDB,0x84,0xE7,0x84,0x42}, //E8:DB:84:E7:84:42
-    {0,0,0,0,0,0},
-    {0,0,0,0,0,0},
-    {0,0,0,0,0,0},
-    {0,0,0,0,0,0},
+    {0x2C,0xF4,0x32,0x1C,0x2B,0x31},
+    {0x84,0x0D,0x8E,0x9C,0xD4,0x2E},
+    {0x24,0x62,0xAB,0x0C,0xDC,0xCD},
+    {0xff,0xff,0xff,0xff,0xff,0xff},
     {0,0,0,0,0,0},
     {0,0,0,0,0,0},
     {0,0,0,0,0,0},
@@ -104,7 +104,8 @@ void SetSequenceFile(){
   myFile.close();
 }
 
-
+String JsonSeqBuffer = "";
+unsigned long JsonSeqBufferReset = millis();
 
 void setup() {
   Serial.begin(115200);
@@ -203,14 +204,15 @@ void setup() {
     }
   });
   website.on("/api/SequenceTable", HTTP_POST, [](AsyncWebServerRequest *request){}, NULL,
-  [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
-    String json = "";
+  [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {    
+    
     for (size_t i = 0; i < len; i++) {
-      json += (char) data[i];
+      JsonSeqBuffer += (char) data[i];
     }
+    JsonSeqBufferReset = millis() + 1000;
     JsonDocument doc;
-    Serial.println("JSON recived: " + json);
-    if(deserializeJson(doc, json)){
+    Serial.println("JSON recived: " + JsonSeqBuffer);
+    if(deserializeJson(doc, JsonSeqBuffer)){
         request->send(400);
     }else{
       resetSequenceArray();
@@ -242,6 +244,9 @@ void setup() {
 
 unsigned long NextStepTimer;
 void loop() {
+  if (JsonSeqBufferReset < millis() and JsonSeqBuffer.length() > 1 ){
+    JsonSeqBuffer = "";
+  }
 
   if (SequenceRunning){
     if(millis() >= NextStepTimer && Sequence[SequenceIndex].Pin>0){
@@ -266,6 +271,41 @@ void loop() {
   else{
     NextStepTimer = millis();
   }
-  
+
+  if (Serial.available()){
+    String SerBuff = "";
+    char CharBuff[2];
+    enum {NONE,SEQ,PASSWORD} cmd = NONE;
+    while(Serial.readBytes(CharBuff,1)){
+      SerBuff += String(CharBuff[0]);
+      if (SerBuff == "sequence:"){
+        SerBuff = "";
+        cmd = SEQ;
+      }
+    }
+    if (cmd = SEQ){
+      JsonDocument doc;
+      Serial.println("JSON recived: " + SerBuff);
+      if(deserializeJson(doc, SerBuff)){
+        Serial.println("ERROR: problem parsing JSON");
+      }else{
+        resetSequenceArray();
+        for (size_t i=0; i<doc.size();i++){
+        JsonArray SeqJsonArr = doc[i].as<JsonArray>();
+        const char* hehe = SeqJsonArr[0]; 
+        Sequence[i].Name = String(SeqJsonArr[0]);
+        Sequence[i].Box = SeqJsonArr[1].as<unsigned char>();
+        Sequence[i].StepDelay = SeqJsonArr[2].as<int>();
+        Sequence[i].Pin = SeqJsonArr[3].as<unsigned char>();
+
+        Serial.println("Getting sequence with index " + String(i) + " :");
+        Serial.println("Name:" + Sequence[i].Name);
+        Serial.println("Box:" + String(Sequence[i].Box));
+        Serial.println("Delay:" + String(Sequence[i].StepDelay));
+        Serial.println("pin:" + String(Sequence[i].Pin));
+      }
+      }
+    }
+  }
 
 }
