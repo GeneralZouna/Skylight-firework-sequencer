@@ -62,7 +62,7 @@ const uint8_t slaveNodes[20][6] = {
 
 struct Packet {
   char pin =0;
-  long on_time=1000;
+  long on_time=5000;
 };
 
 struct SerialPacket{
@@ -261,7 +261,7 @@ void loop() {
       Serial2.write((uint8_t *) &sSerialPacket,sizeof(sSerialPacket));
 
       SequenceIndex ++;
-
+      Serial.println("Seqence_index = " + String(SequenceIndex));
     }
 
     if(SequenceIndex > MAX_SEQUENCE_LENGTH){
@@ -271,6 +271,9 @@ void loop() {
   else{
     NextStepTimer = millis();
   }
+
+
+
 
   if (Serial.available()){
     String SerBuff = "";
@@ -304,6 +307,7 @@ void loop() {
         Serial.println("Delay:" + String(Sequence[i].StepDelay));
         Serial.println("pin:" + String(Sequence[i].Pin));
       }
+        SetSequenceFile();
       }
     }
   }
