@@ -2,15 +2,12 @@
 <html lang="en" data-bs-theme="dark">
 	<head>
 		<meta charset="utf-8">
-		<title>You'll see the title</title>
+		<title>Skylight</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<!-- Write your comments here 
-		<link rel="stylesheet" href="bootstrap.css">
-		-->
 		<link rel="stylesheet" href="picnic.min.css">
+		<script src="basic_api.js"></script>
 		
 		<script> 
-			var SequenceIndex = 0;
 			var SequenceTable =[];
 			var Running = 0;
 			
@@ -20,69 +17,7 @@
 					table.children[i].children[0].innerText = i+1;
 				}
 			}
-			
-			<!-------------------------------------------------------------->
-			function setSequenceIndex(){
-				json = "[" + SequenceIndex + "]"
-				var xhr = new XMLHttpRequest();
-				xhr.open("POST", "/api/SequenceIndex", true);
-				xhr.setRequestHeader("Content-type", "application/json");
-				xhr.send(json);
-			}
 
-			function getSequenceIndex(){
-				var xhr = new XMLHttpRequest();
-				xhr.onload = function() {
-					var json;
-					json = JSON.parse(this)
-					SequenceIndex = json[0]
-				};
-				xhr.open("GET", "/api/SequenceIndex", true);
-				xhr.send();
-			}
-
-			<!-------------------------------------------------------------->
-			function setSequenceTable(json){
-				var xhr = new XMLHttpRequest();
-				xhr.onload = function(){
-					if(xhr.status == 200){
-						modal_1.click()
-					}else{
-						modal_2.click()
-					}
-				};
-				xhr.open("POST", "/api/SequenceTable", true);
-				xhr.send(json);
-			}
-
-			function getSequenceTable(){
-				var xhr = new XMLHttpRequest();
-				xhr.onload = function() {
-					SequenceTable = JSON.parse(this)
-				};
-				xhr.open("GET", "/api/SequenceTable", false);
-				xhr.send();
-				SequenceTable = JSON.parse(xhr.responseText);
-				
-			}
-			<!-------------------------------------------------------------->
-			function setStartSequence(){
-				var json;
-				json = JSON.stringify(Running)
-				var xhr = new XMLHttpRequest();
-				xhr.open("POST", "/api/Start", true);
-				xhr.send(json);
-			}
-
-			function getStartSequence(){
-				var xhr = new XMLHttpRequest();
-				xhr.onload = function() {
-					Running = JSON.parse(this)[0]
-				};
-				xhr.open("GET", "/api/Start", true);
-				xhr.send();
-			}
-			<!-------------------------------------------------------------->
 			function UploadTable(){
 				let tempArr = []
 				a = document.getElementById("SequenceTable").children
@@ -99,7 +34,8 @@
 			}
 			
 			function SetupSequenceTable(){
-				getSequenceTable()
+				getSequenceTable(function(e){
+				SequenceTable = e;
 				document.getElementById("SequenceTable").replaceChildren();
 				for (i = 0; i<SequenceTable.length;i++){
 					NewRow()
@@ -112,6 +48,7 @@
 				}
 				updateTableInexes()
 				console.log(SequenceTable);
+				})
 			}
 			addEventListener("DOMContentLoaded",SetupSequenceTable);
 		</script>

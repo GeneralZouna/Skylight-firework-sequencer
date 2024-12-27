@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+	<head>
+		<meta charset="utf-8">
+		<title>Skylight</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="picnic.min.css">
+		<script src="basic_api.js"></script>
+
+	</head>
+	
+<body style="padding:50px">
+		<nav>
+			<a class="brand" href="ControlPanel.html">
+				<span>Skylight v0</span>
+			</a>
+			
+			<input id="bmenub" type="checkbox" class="show">
+			<label for="bmenub" class="burger pseudo button">Menu</label>
+			
+			
+			<div class="menu">
+				<a class="pseudo button" href="ControlPanel.html">Control panel</a>
+				<a class="pseudo button" href="Settings.html">Settings</a>
+				<a class="pseudo button" href="Sequence.html">Sequence</a>
+				<a class="pseudo button" href="About.html">About</a>
+			</div>  
+		</nav>
+		
+		<main id="home">
+
+			<div>
+				<p><h1>Skylight v0</h1>
+				<span>Night looks bright tonight</span></p>
+				<h3></h3>
+			</div>
+			
+			<!-- Update Confirmation table =========================================== -->
+					<div class="modal">
+						<input id="modal_1" type="checkbox">
+						<label for="modal_1" class="overlay"></label>
+						<article>
+							<header>
+								<h3>Great success</h3>
+								<label for="modal_1" class="close">×</label>
+							</header>
+							<section class="content">
+								The table was updated, it is now safe to switch to Sequence tab
+							</section>
+							
+							<footer>
+								<label for="modal_1" class="button success">
+									Yess boss
+								</label>
+							</footer>
+						</article>
+					</div>
+					
+					<div class="modal">
+						<input id="modal_2" type="checkbox">
+						<label for="modal_2" class="overlay"></label>
+						<article>
+							<header>
+								<h3>Well fuck!</h3>
+								<label for="modal_2" class="close">×</label>
+							</header>
+							<section class="content">
+								<p>The table was not updated, for whatever fucking reason ¯\_(ツ)_/¯ </p>
+								<p>Try one of the following:</p>
+								<ul>
+								<li> Check your connection</li>
+								<li> Think what you did to endup here</li>
+								<li> Blame the guy who made this code</li>
+								<li> Blame Peter (we all know he is always to blame)</li>
+								</ul>
+							</section>
+							
+							<footer>
+								<a for="modal_2" class="button success">
+									Ohhh nooo... Anyway
+								</a>
+							</footer>
+						</article>
+					</div>
+			<section class="flex five">
+				<aside class="full fifth-1000">
+					<h2>Contents</h2>
+					<div class="links flex two three-500 five-800 one-1000">
+						<div><a class="pseudo button" href="#home">Home</a></div>
+						<div><a class="pseudo button" href="#general_settings">General</a></div>
+						<div><a class="pseudo button" href="#slave_settings">Slave nodes</a></div>
+						<div><a class="pseudo button" href="#firebox_settings">Firebox settings</a></div>
+					</div>
+				</aside>
+				
+				<article class="full four-fifth-1000">
+					<h1>Settings</h1>
+					<p></p>
+					
+					<h2 id="general_settings">General settings</h2>
+					<div class="flex two three-500 four-800 five-1100">
+							<div><p>Off time[s]</p></div>
+							<div><p>
+							<input id="off_time" type="number" min="0" max="60000" step="0.01" value="1"></input>
+							</p></div>
+							<div class="full"></div>
+							
+							<div><p>Wifi SSID</p></div>
+							<div><p>
+							<input id="SSID" type="text" value="Skylight"></input>
+							</p></div>
+							<div class="full"></div>
+							
+							<div><p>Wifi password</p></div>
+							<div><p>
+							<input id="pwd" type="password" value="">
+							</p></div>	
+					</div>
+					
+					<h2 id="slave_settings">Slave nodes</h2>
+					<div class="flex two three-500 four-800 five-1100">
+							<div><label>Test connection of boxes</label></div>
+							<div><button onclick="PingButtonTest()">Ping</button></div>
+							<div class="full">
+								<div class="flex ten">
+								<div><span id="ping_box_1" class="label normal">01</span></div>
+								<div><span id="ping_box_2" class="label normal">02</span></div>
+								<div><span id="ping_box_3" class="label normal">03</span></div>
+								<div><span id="ping_box_4" class="label normal">04</span></div>
+								<div><span id="ping_box_5" class="label normal">05</span></div>
+								<div><span id="ping_box_6" class="label normal">06</span></div>
+								<div><span id="ping_box_7" class="label normal">07</span></div>
+								<div><span id="ping_box_8" class="label normal">08</span></div>
+								<div><span id="ping_box_9" class="label normal">09</span></div>
+								<div><span id="ping_box_10" class="label normal">10</span></div>
+								<div><span id="ping_box_11" class="label normal">11</span></div>
+								<div><span id="ping_box_12" class="label normal">12</span></div>
+								<div><span id="ping_box_13" class="label normal">13</span></div>
+								<div><span id="ping_box_14" class="label normal">14</span></div>
+								<div><span id="ping_box_15" class="label normal">15</span></div>
+								<div><span id="ping_box_16" class="label normal">16</span></div>
+								<div><span id="ping_box_17" class="label normal">17</span></div>
+								<div><span id="ping_box_18" class="label normal">18</span></div>
+								<div><span id="ping_box_19" class="label normal">19</span></div>
+								<div><span id="ping_box_20" class="label normal">20</span></div>
+								</div>
+							</div>
+							
+							
+							<div class="full"><h1></h1></div>
+							<div class="full">
+								<div class="flex">
+								<table class="primary">
+									<thead>
+										<th>Idex</th>
+										<th>Name</th>
+										<th>MAC</th>
+										<th>Forget box</th>
+									</thead>
+									<tbody id="node_table">
+									</tbody>
+								</table>
+								</div>
+							</div>
+					</div>
+					
+					<div class="full"><h1></h1></div>
+					<h2 id="firebox_settings">Firebox settings</h2>
+					<div class="full"><h1></h1></div>
+					<div class="full"><h1></h1></div>
+					
+					
+					<footer>
+					<button class="error" onclick="FunniButton()">The funi button</button>
+					<button class="success" onclick="ConfirmSettings()">Save settings</button>
+					</footer>	
+										
+					
+				</article>
+			</section>	
+			<footer id="footer"> More coming soon</footer>
+		</main>
+	</body>
+	
+	<script>
+		
+		function FunniButton(){
+			var xhr = new XMLHttpRequest();
+			xhr.open("GET", "/api/ActivateAll", true);
+			xhr.send();
+		}
+		
+		function PingButtonTest(){
+			getPingTest(function(e){
+				for(i = 1; i<=20;i++){
+					let LED = document.getElementById("ping_box_" + i);
+					if(e[i-1] == 1){LED.className = "label success"}
+					else{LED.className = "label error"}
+				}
+			})
+		}
+		
+		function addRow(table, data){
+			let template = document.createElement('tr');
+			var rowHtml = '<td><input type="number" onchange="reorderRows(this)" step="1" min="1" max="20" value="' + data[0]+ '"></input></td>'
+				rowHtml += '<td><input type="text" value="' + data[1] + '"></input></td>'
+				rowHtml += '<td>' + data[2] + '</td><td><button class="error" onclick="this.parentElement.parentElement.remove()">Forget</button></td>'
+			template.innerHTML = rowHtml;
+			table.appendChild(template);	
+		}
+		
+		function reorderRows(e){
+			console.log(e)
+			var table = document.getElementById("node_table")
+			var newIndex = e.value
+			
+			
+			console.log("index is" + newIndex)
+			if (newIndex >= table.childElementCount){
+				console.log("index is too high")
+				console.log(e.value)
+				e.value = table.childElementCount;
+			    newIndex = e.value;
+			}
+			if (newIndex <= 1){
+				console.log("index is too high")
+				console.log(e.value)
+				e.value = 1;
+			    newIndex = 1;
+			}
+			
+			this_row = e.parentElement.parentElement.cloneNode(true)
+			e.parentElement.parentElement.remove()
+			table.insertBefore(this_row, table.children[newIndex-1])
+			
+			
+			for(i=0; i< table.childElementCount; i++){
+				table.children[i].childNodes[0].childNodes[0].value =i+1;
+				
+			}
+			
+			
+		}
+		
+		function SetupNodeTable(){
+			recived_json = [[0,"Jure","E8:DB:84:E7:84:42"],[1,"Domen","35:48:df:31:67:88"],[2,"Klemen","55:47:d5:ec:c7:e8"],[3,"Tilen","35:00:df:00:67:88"]]
+			
+			//getNodeList(function(e){
+			var table = document.getElementById("node_table")
+			
+			recived_json.forEach(function(node){
+				node[0] += 1;
+				addRow(table, node)
+			//})
+			})
+		}
+		
+		function ConfirmSettings(){
+			var settings_data = {}
+			settings_data["off_time"] = 1000 * document.getElementById("off_time").value;
+			settings_data["SSID"] = document.getElementById("SSID").value;
+			settings_data["pwd"] = document.getElementById("pwd").value;
+			
+			var NodeTable = [];
+			var table = document.getElementById("node_table");
+			for (i=0; i <table.children.length;i++){
+				row = document.getElementById("node_table").children.item(i)
+				NodeTable.push([i+1,
+				1*row.childNodes[0].childNodes[0].value, 
+				row.childNodes[1].childNodes[0].value])
+			}
+			console.log(NodeTable)
+			console.log(settings_data)
+		}
+		
+		function ResetRows(th){
+			var table = document.getElementById("node_table");
+			
+			for (i=0; i <table.children.length;i++){
+				row = document.getElementById("node_table").children.item(i)
+				NodeTable.push([i+1,
+				1*row.childNodes[0].childNodes[0].value, 
+				row.childNodes[1].childNodes[0].value])
+			}
+			
+		}
+		
+		function innit(){
+			SetupNodeTable()
+			getSettings(function(data){
+				document.getElementById("off_time")= 0.001 * data["off_time"]
+				document.getElementById("SSID") = data["SSID"]
+				document.getElementById("pwd") = data["pwd"]
+			})
+		}
+		
+		
+		addEventListener("DOMContentLoaded",innit);
+	</script>
+</html>
+

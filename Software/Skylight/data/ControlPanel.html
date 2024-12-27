@@ -2,11 +2,8 @@
 <html lang="en" data-bs-theme="dark">
 	<head>
 		<meta charset="utf-8">
-		<title>You'll see the title</title>
+		<title>Skylight</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<!-- Write your comments here 
-		<link rel="stylesheet" href="bootstrap.css">
-		-->
 		<link rel="stylesheet" href="picnic.min.css">
 		
 	</head>
@@ -34,14 +31,22 @@
 				<span>Night looks bright tonight</span></p>
 				<h3></h3>
 			</div>
-			<div class="flex two">
-				<div><button id="StartBtn" type="button" class="sucess" onclick='{this.className = this.className = (this.innerText.includes("Stop") ? "success" : "error"); this.innerHTML = (this.innerText.includes("Run") ? "<h1>Stop</h1>" : "<h1>Run</h1>");setStartSequence();}'><h1>Run</h1></button></div>
-				
-				<div>
-					<p class="three">
-					<input id="SequenceIndex" type="number", step=1>
-					<button id="StartBtn" type="button" class="success" onclick='setSequenceIndex()'>Set Index</button>	</input>
-					</p>
+			<div class="flex six-1000">
+				<div class="flex off-seventh four-fifth">
+					<div class="flex">
+						<button id="StartBtn" class="success" onclick='{this.className = (this.innerText.includes("Stop") ? "success" : "error"); this.innerHTML = (this.innerText.includes("Run") ? "<h1>Stop</h1>" : "<h1>Run</h1>");setStartSequence();}'>
+							<h1> Run </h1>
+						</button>
+					</div>
+					
+					<h1 class="full"></h1>
+					
+					<div class="full">
+						<p class="five">
+						<input class="two-fifth" id="SequenceIndex" type="number", step=1>
+						<button class="half success" id="StartBtn" type="button" onclick='setSequenceIndex()'>Set Index</button>	</input>
+						</p>
+					</div>
 				</div>
 
 			</div>
@@ -98,8 +103,8 @@
 				getStartSequence(function(running){
 				
 				let btn = document.getElementById("StartBtn");
-				btn.className = btn.className.replace("success", running ? "danger" : "success");
-				btn.innerText = (running ? "Stop" : "Run");
+				btn.className = btn.className.replace("success", running[0] ? "danger" : "success");
+				btn.innerHTML = (running[0] ? "<h1>Stop</h1>" : "<h1>Run</h1>");
 				})
 				getSequenceIndex(function(e){document.getElementById("SequenceIndex").value = e});
 			}
