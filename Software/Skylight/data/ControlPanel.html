@@ -43,18 +43,92 @@
 					
 					<div class="full">
 						<p class="five">
-						<input class="two-fifth" id="SequenceIndex" type="number", step=1>
-						<button class="half success" id="StartBtn" type="button" onclick='setSequenceIndex()'>Set Index</button>	</input>
+							<input class="two-fifth" id="SequenceIndex" type="number" step="1">
+								<button class="half success" id="StartBtn" type="button" onclick='setSequenceIndex()'>Set Index</button>
+							</input>
 						</p>
 					</div>
 				</div>
-
+			
+			</div>
+			
+			<div class="flex six-1000">
+				<div class="full"> 
+					<p class="five">
+						<label class="flex full">Time at witch to start sequence [hh:mm:ss]</label>
+						<input  class="two-fifth" value="00:00:00" step="1" type="time" id="ignition-time">
+							<label class="half">
+								<input type="checkbox" id="ontime-toggle" onclick="toggleOnTimer(this)"></input>
+								<span class="toggle button success">Start on timer </span>
+							</label>
+						</input>
+					</p>
+				<div>
 			</div>
 
-
+		<div class="modal">
+			<input id="modal_1" type="checkbox" />
+			<label for="modal_1" class="overlay"></label>
+			<article>
+			<header>
+			  <h3>You can't do that</h3>
+			  <label for="modal_1" class="close">&times;</label>
+			</header>
+			<section class="content">
+			  For your own good, I have limited smallest delay between start and current time.
+			  The now and start time must have at least 10s of difference.
+			</section>
+			<footer>
+			  <a class="button error" onclick="document.getElementById('modal_1').click()">I have seen the errors of my ways</a>
+			</footer>
+		  </article>
+		</div>
 		
 		</main>
 		<script>
+			function sequenceStartTimer(){
+				if (document.getElementById("ontime-toggle").checked){
+					let now = new Date();
+					let igniton_time = document.getElementById("ignition-time").value;
+					
+					if ((now.getTime()) >= Date.parse(now.toDateString() + " " + igniton_time)){
+						if (document.getElementById("StartBtn").innerText.startsWith("R")){
+							document.getElementById("StartBtn").click()
+							document.getElementById("ontime-toggle").click()
+						}
+					}
+				}
+			}
+			
+			function toggleOnTimer(e){
+				let b = e.parentElement.children[1];
+				let now = new Date()
+				let igniton_time = document.getElementById("ignition-time").value
+				
+				if ((now.getTime() + 10000) <= Date.parse(now.toDateString() + " " + igniton_time)){
+					b.className = 'toggle button' + (e.checked ? " error":" success");
+					b.innerText = (e.checked ?  "Stop" : "Start") + " on timer";
+				}else{
+					e.checked = false;
+					if (b.innerText.startsWith("Stop")){
+						e.checked = false;
+						b.className = 'toggle button success';
+						b.innerText = "Start on timer";
+					}else{
+					console.log("You can't do that, you bad boi");
+					document.getElementById('modal_1').checked = true;
+					}
+				}
+				
+			}
+			
+			function setup(){
+				let time = new Date()
+				document.getElementById("ignition-time").value = time.toTimeString().split(" ")[0]
+				
+				window.setInterval(sequenceStartTimer,400)
+			}
+			
 			var SequenceIndex = 0;
 			var SequenceTable =[];
 			var Running = 0;
@@ -117,6 +191,7 @@
 			
 			setInterval(updateSequenceIndex, 250);
 			addEventListener("DOMContentLoaded",SetupCtrPanel);
+			addEventListener("DOMContentLoaded",setup);
 		</script>
 
 	</body>
